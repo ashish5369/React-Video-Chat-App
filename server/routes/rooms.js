@@ -7,7 +7,15 @@ router.post('/create', async (req, res) => {
   try {
     const { roomId, userId } = req.body;
     
-    const existingRoom = await Room.findOne({ roomId });
+    // Input validation
+    if (!roomId || typeof roomId !== 'string' || roomId.length > 100) {
+      return res.status(400).json({ message: 'Invalid room ID' });
+    }
+    if (!userId || typeof userId !== 'string' || userId.length > 100) {
+      return res.status(400).json({ message: 'Invalid user ID' });
+    }
+    
+    const existingRoom = await Room.findOne({ roomId: { $eq: roomId } });
     if (existingRoom) {
       return res.status(400).json({ message: 'Room already exists' });
     }
@@ -28,7 +36,14 @@ router.post('/create', async (req, res) => {
 // Get room details
 router.get('/:roomId', async (req, res) => {
   try {
-    const room = await Room.findOne({ roomId: req.params.roomId });
+    const roomId = req.params.roomId;
+    
+    // Input validation
+    if (!roomId || typeof roomId !== 'string' || roomId.length > 100) {
+      return res.status(400).json({ message: 'Invalid room ID' });
+    }
+    
+    const room = await Room.findOne({ roomId: { $eq: roomId } });
     if (!room) {
       return res.status(404).json({ message: 'Room not found' });
     }
@@ -41,8 +56,18 @@ router.get('/:roomId', async (req, res) => {
 // Join a room
 router.post('/:roomId/join', async (req, res) => {
   try {
+    const roomId = req.params.roomId;
     const { userId } = req.body;
-    const room = await Room.findOne({ roomId: req.params.roomId });
+    
+    // Input validation
+    if (!roomId || typeof roomId !== 'string' || roomId.length > 100) {
+      return res.status(400).json({ message: 'Invalid room ID' });
+    }
+    if (!userId || typeof userId !== 'string' || userId.length > 100) {
+      return res.status(400).json({ message: 'Invalid user ID' });
+    }
+    
+    const room = await Room.findOne({ roomId: { $eq: roomId } });
     
     if (!room) {
       return res.status(404).json({ message: 'Room not found' });
